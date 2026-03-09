@@ -398,6 +398,13 @@
     line-height: 1;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
     transition: transform 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    height: 80px;
+  }
+  .starter-sprite img {
+    width: 80px; height: 80px;
+    image-rendering: pixelated;
+    object-fit: contain;
   }
   .starter-card:hover .starter-sprite,
   .starter-card.selected .starter-sprite { transform: scale(1.12); }
@@ -1189,8 +1196,8 @@
     <div id="starter-cards">
 
       <div class="starter-card" data-id="flameling" data-type="fire" onclick="selectStarter('flameling')">
-        <div class="starter-sprite">🔥</div>
-        <div class="starter-name">FLAMELING</div>
+        <div class="starter-sprite"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" width="80" height="80" style="image-rendering:pixelated;" onerror="this.style.display='none';this.parentNode.innerHTML='🔥';" alt=""></div>
+        <div class="starter-name">CHARMANDER</div>
         <div class="starter-type-badge fire">FIRE</div>
         <div class="starter-desc">Fierce and bold.<br>High Sp. Atk & Speed.</div>
         <div class="starter-stat-row">
@@ -1200,8 +1207,8 @@
       </div>
 
       <div class="starter-card" data-id="aquafin" data-type="water" onclick="selectStarter('aquafin')">
-        <div class="starter-sprite">💧</div>
-        <div class="starter-name">AQUAFIN</div>
+        <div class="starter-sprite"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" width="80" height="80" style="image-rendering:pixelated;" onerror="this.style.display='none';this.parentNode.innerHTML='💧';" alt=""></div>
+        <div class="starter-name">SQUIRTLE</div>
         <div class="starter-type-badge water">WATER</div>
         <div class="starter-desc">Steady defender.<br>High Defense & Sp.Def.</div>
         <div class="starter-stat-row">
@@ -1211,8 +1218,8 @@
       </div>
 
       <div class="starter-card" data-id="leafling" data-type="grass" onclick="selectStarter('leafling')">
-        <div class="starter-sprite">🌿</div>
-        <div class="starter-name">LEAFLING</div>
+        <div class="starter-sprite"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" width="80" height="80" style="image-rendering:pixelated;" onerror="this.style.display='none';this.parentNode.innerHTML='🌿';" alt=""></div>
+        <div class="starter-name">BULBASAUR</div>
         <div class="starter-type-badge grass">GRASS</div>
         <div class="starter-desc">Balanced all-rounder.<br>High Sp. Atk & Sp.Def.</div>
         <div class="starter-stat-row">
