@@ -635,14 +635,14 @@
   /* Enemy platform rendered ~47px tall, top surface ~5px from top = ~42px from bottom */
   #enemy-sprite-wrap {
     position: absolute;
-    bottom: 42px;
+    bottom: 38px;
     left: 50%; transform: translateX(-50%);
     overflow: visible;
   }
   /* Player platform rendered ~33px tall, top surface ~8px from top = ~25px from bottom */
   #player-sprite-wrap {
     position: absolute;
-    bottom: 25px;
+    bottom: 20px;
     left: 50%; transform: translateX(-50%);
     overflow: visible;
   }
@@ -672,7 +672,7 @@
     display: flex; align-items: center; justify-content: center;
     width: 96px; height: 96px;
   }
-  .mon-sprite img { image-rendering: pixelated; }
+  .mon-sprite img { image-rendering: pixelated; width: 96px; height: 96px; object-fit: contain; object-position: center bottom; display: block; }
   .mon-sprite.shake { animation: shake 0.35s ease; }
   .mon-sprite.flash { animation: flash 0.35s ease; }
   .mon-sprite.faint { animation: faint 0.55s ease forwards; }
@@ -1701,52 +1701,52 @@ const MOVES_DB = {
 
 const MONSTERS_DB = [
   // ── Starters ──────────────────────────────────────────────────────────────────────────────────
-  { id:'flameling',  name:'Charmander',  types:['fire'],            sprite:'🔥', baseStats:{hp:45,atk:55,def:40,spAtk:70,spDef:50,spd:65, ability:'blaze'}, moves:['scratch','ember'],         learnset:[[1,'scratch'],[4,'ember'],[10,'flamethrower'],[18,'fireblast']],    catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'flamedrake' },
-  { id:'aquafin',    name:'Squirtle',    types:['water'],           sprite:'💧', baseStats:{hp:44,atk:48,def:65,spAtk:50,spDef:64,spd:43, ability:'torrent'}, moves:['tackle','watergun'],       learnset:[[1,'tackle'],[4,'watergun'],[10,'surf'],[18,'bubblebeam']],          catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'aquadon' },
-  { id:'leafling',   name:'Bulbasaur',   types:['grass'],           sprite:'🌿', baseStats:{hp:45,atk:49,def:49,spAtk:65,spDef:65,spd:45, ability:'overgrow'}, moves:['tackle','vinewhip'],       learnset:[[1,'tackle'],[4,'vinewhip'],[10,'razorleaf'],[18,'solarbeam']],      catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'thornwood' },
+  { id:'flameling',  name:'Charmander',  types:['fire'], baseStats:{hp:45,atk:55,def:40,spAtk:70,spDef:50,spd:65, ability:'blaze'}, moves:['scratch','ember'],         learnset:[[1,'scratch'],[4,'ember'],[10,'flamethrower'],[18,'fireblast']],    catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'flamedrake' },
+  { id:'aquafin',    name:'Squirtle',    types:['water'], baseStats:{hp:44,atk:48,def:65,spAtk:50,spDef:64,spd:43, ability:'torrent'}, moves:['tackle','watergun'],       learnset:[[1,'tackle'],[4,'watergun'],[10,'surf'],[18,'bubblebeam']],          catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'aquadon' },
+  { id:'leafling',   name:'Bulbasaur',   types:['grass'], baseStats:{hp:45,atk:49,def:49,spAtk:65,spDef:65,spd:45, ability:'overgrow'}, moves:['tackle','vinewhip'],       learnset:[[1,'tackle'],[4,'vinewhip'],[10,'razorleaf'],[18,'solarbeam']],      catchRate:120, expYield:65,  level:5,  evolvesAt:16, evolvesInto:'thornwood' },
   // ── Wilds ──────────────────────────────────────────────────────────────────────────────────────
-  { id:'sparky',     name:'Pikachu',     types:['electric'],        sprite:'⚡', baseStats:{hp:35,atk:55,def:30,spAtk:60,spDef:40,spd:90, ability:'static'}, moves:['scratch','thundershock'],  learnset:[[1,'scratch'],[4,'thundershock'],[10,'thunderbolt'],[18,'thunder']], catchRate:150, expYield:82,  level:5,  evolvesAt:20, evolvesInto:'voltmane' },
-  { id:'mindra',     name:'Abra',     types:['psychic'],         sprite:'🔮', baseStats:{hp:40,atk:45,def:35,spAtk:80,spDef:75,spd:55, ability:'synchronize'}, moves:['tackle','confusion'],      learnset:[[1,'tackle'],[4,'confusion'],[10,'psybeam'],[18,'psychic']],         catchRate:140, expYield:100, level:5,  evolvesAt:22, evolvesInto:'psyknight' },
-  { id:'boulder',    name:'Geodude',    types:['rock'],            sprite:'🪨', baseStats:{hp:60,atk:75,def:85,spAtk:30,spDef:40,spd:20, ability:'sturdy', heldItem:'leftovers'}, moves:['tackle','rockthrow'],      learnset:[[1,'tackle'],[4,'rockthrow'],[10,'rockslide'],[18,'bodyslam']],      catchRate:140, expYield:90,  level:5,  evolvesAt:20, evolvesInto:'goliath' },
-  { id:'frostbite',  name:'Swinub',  types:['ice'],             sprite:'❄️', baseStats:{hp:50,atk:65,def:55,spAtk:80,spDef:60,spd:50}, moves:['scratch','icebeam'],       learnset:[[1,'scratch'],[4,'icebeam'],[10,'blizzard'],[18,'bodyslam']],        catchRate:130, expYield:95,  level:5,  evolvesAt:22, evolvesInto:'glaceon' },
-  { id:'spectra',    name:'Gastly',    types:['ghost'],           sprite:'👻', baseStats:{hp:30,atk:50,def:30,spAtk:90,spDef:60,spd:80, ability:'pressure', heldItem:'lumberry'}, moves:['tackle','nightshade'],     learnset:[[1,'tackle'],[4,'nightshade'],[10,'shadowball'],[18,'psybeam']],     catchRate:120, expYield:110, level:5,  evolvesAt:24, evolvesInto:'wraithlord' },
-  { id:'drakonite',  name:'Dratini',  types:['dragon'],          sprite:'🐉', baseStats:{hp:55,atk:80,def:70,spAtk:85,spDef:75,spd:60, ability:'pressure', heldItem:'choiceband'}, moves:['scratch','dragonrage'],    learnset:[[1,'scratch'],[4,'dragonrage'],[10,'dragonbreath'],[18,'hyperbeam']],catchRate:80,  expYield:150, level:5,  evolvesAt:30, evolvesInto:'drakoserpent' },
+  { id:'sparky',     name:'Pikachu',     types:['electric'], baseStats:{hp:35,atk:55,def:30,spAtk:60,spDef:40,spd:90, ability:'static'}, moves:['scratch','thundershock'],  learnset:[[1,'scratch'],[4,'thundershock'],[10,'thunderbolt'],[18,'thunder']], catchRate:150, expYield:82,  level:5,  evolvesAt:20, evolvesInto:'voltmane' },
+  { id:'mindra',     name:'Abra',     types:['psychic'], baseStats:{hp:40,atk:45,def:35,spAtk:80,spDef:75,spd:55, ability:'synchronize'}, moves:['tackle','confusion'],      learnset:[[1,'tackle'],[4,'confusion'],[10,'psybeam'],[18,'psychic']],         catchRate:140, expYield:100, level:5,  evolvesAt:22, evolvesInto:'psyknight' },
+  { id:'boulder',    name:'Geodude',    types:['rock'], baseStats:{hp:60,atk:75,def:85,spAtk:30,spDef:40,spd:20, ability:'sturdy', heldItem:'leftovers'}, moves:['tackle','rockthrow'],      learnset:[[1,'tackle'],[4,'rockthrow'],[10,'rockslide'],[18,'bodyslam']],      catchRate:140, expYield:90,  level:5,  evolvesAt:20, evolvesInto:'goliath' },
+  { id:'frostbite',  name:'Swinub',  types:['ice'], baseStats:{hp:50,atk:65,def:55,spAtk:80,spDef:60,spd:50}, moves:['scratch','icebeam'],       learnset:[[1,'scratch'],[4,'icebeam'],[10,'blizzard'],[18,'bodyslam']],        catchRate:130, expYield:95,  level:5,  evolvesAt:22, evolvesInto:'glaceon' },
+  { id:'spectra',    name:'Gastly',    types:['ghost'], baseStats:{hp:30,atk:50,def:30,spAtk:90,spDef:60,spd:80, ability:'pressure', heldItem:'lumberry'}, moves:['tackle','nightshade'],     learnset:[[1,'tackle'],[4,'nightshade'],[10,'shadowball'],[18,'psybeam']],     catchRate:120, expYield:110, level:5,  evolvesAt:24, evolvesInto:'wraithlord' },
+  { id:'drakonite',  name:'Dratini',  types:['dragon'], baseStats:{hp:55,atk:80,def:70,spAtk:85,spDef:75,spd:60, ability:'pressure', heldItem:'choiceband'}, moves:['scratch','dragonrage'],    learnset:[[1,'scratch'],[4,'dragonrage'],[10,'dragonbreath'],[18,'hyperbeam']],catchRate:80,  expYield:150, level:5,  evolvesAt:30, evolvesInto:'drakoserpent' },
   // ── Phase 2A Monsters ─────────────────────────────────────────────────────────────────────────
-  { id:'toxicrawl',  name:'Ekans',  types:['poison'],          sprite:'🐍', baseStats:{hp:50,atk:55,def:45,spAtk:70,spDef:55,spd:60, ability:'immunity'}, moves:['tackle','poisonsting'],    learnset:[[1,'tackle'],[4,'poisonsting'],[10,'sludge'],[18,'sludgebomb']],     catchRate:150, expYield:78,  level:5,  evolvesAt:20, evolvesInto:'venomcrawl' },
-  { id:'bruiser',    name:'Machop',    types:['fighting'],        sprite:'🥊', baseStats:{hp:65,atk:85,def:55,spAtk:40,spDef:50,spd:65, ability:'intimidate'}, moves:['scratch','karatechop'],    learnset:[[1,'scratch'],[4,'karatechop'],[10,'crosschop'],[18,'closecombat']], catchRate:140, expYield:88,  level:5,  evolvesAt:20, evolvesInto:'titanfist' },
-  { id:'nubbin',     name:'Eevee',     types:['normal'],          sprite:'🐭', baseStats:{hp:55,atk:50,def:50,spAtk:45,spDef:50,spd:70}, moves:['tackle','scratch'],        learnset:[[1,'tackle'],[4,'scratch'],[10,'bodyslam'],[18,'hyperbeam']],        catchRate:200, expYield:55,  level:5,  evolvesAt:18, evolvesInto:'normax' },
-  { id:'winglet',    name:'Pidgey',    types:['flying'],          sprite:'🦅', baseStats:{hp:45,atk:60,def:40,spAtk:55,spDef:50,spd:85}, moves:['tackle','gust'],           learnset:[[1,'tackle'],[4,'gust'],[10,'wingattack'],[18,'aeroblast']],         catchRate:150, expYield:80,  level:5,  evolvesAt:20, evolvesInto:'stormwing' },
-  { id:'larvik',     name:'Caterpie',     types:['bug'],             sprite:'🐛', baseStats:{hp:45,atk:55,def:50,spAtk:60,spDef:45,spd:65}, moves:['tackle','bugbite'],        learnset:[[1,'tackle'],[4,'bugbite'],[10,'signalbeam'],[18,'bugbuzz']],        catchRate:160, expYield:72,  level:5,  evolvesAt:18, evolvesInto:'armoshell' },
-  { id:'steelyx',    name:'Magnemite',    types:['steel'],           sprite:'⚙️', baseStats:{hp:50,atk:70,def:90,spAtk:40,spDef:70,spd:30, ability:'sturdy'}, moves:['scratch','metalclaw'],     learnset:[[1,'scratch'],[4,'metalclaw'],[10,'ironhead'],[18,'flashcannon']],   catchRate:110, expYield:105, level:5,  evolvesAt:24, evolvesInto:'ironcrest' },
-  { id:'shadrak',    name:'Zubat',    types:['dark'],            sprite:'🦇', baseStats:{hp:50,atk:70,def:45,spAtk:65,spDef:55,spd:75, ability:'intimidate'}, moves:['tackle','bite'],           learnset:[[1,'tackle'],[4,'bite'],[10,'crunch'],[18,'darkpulse']],             catchRate:130, expYield:92,  level:5,  evolvesAt:22, evolvesInto:'darkwing' },
-  { id:'lumielle',   name:'Clefairy',   types:['fairy'],           sprite:'🧚', baseStats:{hp:55,atk:45,def:55,spAtk:85,spDef:80,spd:60, ability:'naturalcure'}, moves:['tackle','fairywind'],      learnset:[[1,'tackle'],[4,'fairywind'],[10,'dazzling'],[18,'moonblast']],      catchRate:120, expYield:108, level:5,  evolvesAt:22, evolvesInto:'seraphelle' },
-  { id:'terrox',     name:'Diglett',     types:['ground'],          sprite:'🦎', baseStats:{hp:60,atk:75,def:70,spAtk:45,spDef:55,spd:40}, moves:['tackle','mudslap'],        learnset:[[1,'tackle'],[4,'mudslap'],[10,'earthquake'],[18,'fissure']],        catchRate:135, expYield:95,  level:5,  evolvesAt:22, evolvesInto:'terravore' },
+  { id:'toxicrawl',  name:'Ekans',  types:['poison'], baseStats:{hp:50,atk:55,def:45,spAtk:70,spDef:55,spd:60, ability:'immunity'}, moves:['tackle','poisonsting'],    learnset:[[1,'tackle'],[4,'poisonsting'],[10,'sludge'],[18,'sludgebomb']],     catchRate:150, expYield:78,  level:5,  evolvesAt:20, evolvesInto:'venomcrawl' },
+  { id:'bruiser',    name:'Machop',    types:['fighting'], baseStats:{hp:65,atk:85,def:55,spAtk:40,spDef:50,spd:65, ability:'intimidate'}, moves:['scratch','karatechop'],    learnset:[[1,'scratch'],[4,'karatechop'],[10,'crosschop'],[18,'closecombat']], catchRate:140, expYield:88,  level:5,  evolvesAt:20, evolvesInto:'titanfist' },
+  { id:'nubbin',     name:'Eevee',     types:['normal'], baseStats:{hp:55,atk:50,def:50,spAtk:45,spDef:50,spd:70}, moves:['tackle','scratch'],        learnset:[[1,'tackle'],[4,'scratch'],[10,'bodyslam'],[18,'hyperbeam']],        catchRate:200, expYield:55,  level:5,  evolvesAt:18, evolvesInto:'normax' },
+  { id:'winglet',    name:'Pidgey',    types:['flying'], baseStats:{hp:45,atk:60,def:40,spAtk:55,spDef:50,spd:85}, moves:['tackle','gust'],           learnset:[[1,'tackle'],[4,'gust'],[10,'wingattack'],[18,'aeroblast']],         catchRate:150, expYield:80,  level:5,  evolvesAt:20, evolvesInto:'stormwing' },
+  { id:'larvik',     name:'Caterpie',     types:['bug'], baseStats:{hp:45,atk:55,def:50,spAtk:60,spDef:45,spd:65}, moves:['tackle','bugbite'],        learnset:[[1,'tackle'],[4,'bugbite'],[10,'signalbeam'],[18,'bugbuzz']],        catchRate:160, expYield:72,  level:5,  evolvesAt:18, evolvesInto:'armoshell' },
+  { id:'steelyx',    name:'Magnemite',    types:['steel'], baseStats:{hp:50,atk:70,def:90,spAtk:40,spDef:70,spd:30, ability:'sturdy'}, moves:['scratch','metalclaw'],     learnset:[[1,'scratch'],[4,'metalclaw'],[10,'ironhead'],[18,'flashcannon']],   catchRate:110, expYield:105, level:5,  evolvesAt:24, evolvesInto:'ironcrest' },
+  { id:'shadrak',    name:'Zubat',    types:['dark'], baseStats:{hp:50,atk:70,def:45,spAtk:65,spDef:55,spd:75, ability:'intimidate'}, moves:['tackle','bite'],           learnset:[[1,'tackle'],[4,'bite'],[10,'crunch'],[18,'darkpulse']],             catchRate:130, expYield:92,  level:5,  evolvesAt:22, evolvesInto:'darkwing' },
+  { id:'lumielle',   name:'Clefairy',   types:['fairy'], baseStats:{hp:55,atk:45,def:55,spAtk:85,spDef:80,spd:60, ability:'naturalcure'}, moves:['tackle','fairywind'],      learnset:[[1,'tackle'],[4,'fairywind'],[10,'dazzling'],[18,'moonblast']],      catchRate:120, expYield:108, level:5,  evolvesAt:22, evolvesInto:'seraphelle' },
+  { id:'terrox',     name:'Diglett',     types:['ground'], baseStats:{hp:60,atk:75,def:70,spAtk:45,spDef:55,spd:40}, moves:['tackle','mudslap'],        learnset:[[1,'tackle'],[4,'mudslap'],[10,'earthquake'],[18,'fissure']],        catchRate:135, expYield:95,  level:5,  evolvesAt:22, evolvesInto:'terravore' },
 
   // ── EVOLVED FORMS (Phase 2B) ──────────────────────────────────────────────────────────────────
   // Starter evolutions (stage 1 → 2 at 16, stage 2 → 3 at 32)
-  { id:'flamedrake',    name:'Charmeleon',   types:['fire'],           sprite:'🐲', baseStats:{hp:65,atk:75,def:55,spAtk:95,spDef:65,spd:85, ability:'blaze'},  moves:['ember','flamethrower'],   learnset:[[16,'flamethrower'],[24,'fireblast'],[32,'hyperbeam']],             catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'infernoserpent' },
-  { id:'aquadon',       name:'Wartortle',      types:['water'],          sprite:'🦈', baseStats:{hp:65,atk:68,def:85,spAtk:70,spDef:85,spd:60, ability:'torrent'},  moves:['watergun','surf'],        learnset:[[16,'surf'],[24,'bubblebeam'],[32,'hyperbeam']],                    catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'tidalwyrm' },
-  { id:'thornwood',     name:'Ivysaur',    types:['grass'],          sprite:'🌳', baseStats:{hp:65,atk:70,def:70,spAtk:85,spDef:85,spd:60, ability:'overgrow'},  moves:['vinewhip','razorleaf'],   learnset:[[16,'razorleaf'],[24,'solarbeam'],[32,'hyperbeam']],                catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'arborking' },
+  { id:'flamedrake',    name:'Charmeleon',   types:['fire'], baseStats:{hp:65,atk:75,def:55,spAtk:95,spDef:65,spd:85, ability:'blaze'},  moves:['ember','flamethrower'],   learnset:[[16,'flamethrower'],[24,'fireblast'],[32,'hyperbeam']],             catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'infernoserpent' },
+  { id:'aquadon',       name:'Wartortle',      types:['water'], baseStats:{hp:65,atk:68,def:85,spAtk:70,spDef:85,spd:60, ability:'torrent'},  moves:['watergun','surf'],        learnset:[[16,'surf'],[24,'bubblebeam'],[32,'hyperbeam']],                    catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'tidalwyrm' },
+  { id:'thornwood',     name:'Ivysaur',    types:['grass'], baseStats:{hp:65,atk:70,def:70,spAtk:85,spDef:85,spd:60, ability:'overgrow'},  moves:['vinewhip','razorleaf'],   learnset:[[16,'razorleaf'],[24,'solarbeam'],[32,'hyperbeam']],                catchRate:60,  expYield:142, level:16, evolvesAt:32, evolvesInto:'arborking' },
   // Starter final forms (no further evolution)
-  { id:'infernoserpent',name:'Charizard',types:['fire','dragon'],  sprite:'🔴', baseStats:{hp:80,atk:85,def:65,spAtk:115,spDef:80,spd:100, ability:'blaze'}, moves:['flamethrower','fireblast'],learnset:[[32,'fireblast'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
-  { id:'tidalwyrm',     name:'Blastoise',    types:['water','dragon'], sprite:'🔵', baseStats:{hp:80,atk:82,def:100,spAtk:90,spDef:100,spd:75, ability:'torrent'}, moves:['surf','bubblebeam'],     learnset:[[32,'bubblebeam'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
-  { id:'arborking',     name:'Venusaur',    types:['grass','dragon'], sprite:'🟢', baseStats:{hp:80,atk:85,def:85,spAtk:105,spDef:100,spd:75, ability:'overgrow'}, moves:['razorleaf','solarbeam'],  learnset:[[32,'solarbeam'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
+  { id:'infernoserpent',name:'Charizard',types:['fire','dragon'], baseStats:{hp:80,atk:85,def:65,spAtk:115,spDef:80,spd:100, ability:'blaze'}, moves:['flamethrower','fireblast'],learnset:[[32,'fireblast'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
+  { id:'tidalwyrm',     name:'Blastoise',    types:['water','dragon'], baseStats:{hp:80,atk:82,def:100,spAtk:90,spDef:100,spd:75, ability:'torrent'}, moves:['surf','bubblebeam'],     learnset:[[32,'bubblebeam'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
+  { id:'arborking',     name:'Venusaur',    types:['grass','dragon'], baseStats:{hp:80,atk:85,def:85,spAtk:105,spDef:100,spd:75, ability:'overgrow'}, moves:['razorleaf','solarbeam'],  learnset:[[32,'solarbeam'],[40,'hyperbeam']],                               catchRate:30,  expYield:240, level:32 },
   // Other evolutions (single-stage)
-  { id:'voltmane',      name:'Raichu',     types:['electric'],       sprite:'⚡', baseStats:{hp:55,atk:75,def:45,spAtk:90,spDef:60,spd:115, ability:'static'}, moves:['thundershock','thunderbolt'],learnset:[[20,'thunderbolt'],[30,'thunder'],[38,'hyperbeam']],             catchRate:75,  expYield:178, level:20 },
-  { id:'psyknight',     name:'Alakazam',    types:['psychic'],        sprite:'🔯', baseStats:{hp:60,atk:65,def:55,spAtk:115,spDef:100,spd:80, ability:'synchronize'}, moves:['confusion','psybeam'],    learnset:[[22,'psybeam'],[30,'psychic'],[38,'hyperbeam']],                    catchRate:70,  expYield:185, level:22 },
-  { id:'goliath',       name:'Golem',      types:['rock','ground'],  sprite:'🗿', baseStats:{hp:85,atk:100,def:115,spAtk:45,spDef:65,spd:35, ability:'sturdy', heldItem:'sitrusberry'}, moves:['rockthrow','rockslide'],  learnset:[[20,'rockslide'],[28,'earthquake'],[36,'bodyslam']],               catchRate:70,  expYield:185, level:20 },
-  { id:'glaceon',       name:'Glaceon',      types:['ice'],            sprite:'🧊', baseStats:{hp:70,atk:80,def:75,spAtk:110,spDef:85,spd:65},  moves:['icebeam','blizzard'],     learnset:[[22,'blizzard'],[30,'bodyslam'],[38,'hyperbeam']],                  catchRate:70,  expYield:188, level:22 },
-  { id:'wraithlord',    name:'Gengar',   types:['ghost','dark'],   sprite:'💀', baseStats:{hp:55,atk:75,def:55,spAtk:120,spDef:90,spd:105, ability:'pressure', heldItem:'lifeorb'}, moves:['nightshade','shadowball'], learnset:[[24,'shadowball'],[30,'darkpulse'],[38,'hyperbeam']],              catchRate:60,  expYield:195, level:24 },
-  { id:'drakoserpent',  name:'Dragonite', types:['dragon'],         sprite:'🐲', baseStats:{hp:80,atk:110,def:90,spAtk:110,spDef:100,spd:80, ability:'pressure', heldItem:'focussash'},moves:['dragonrage','dragonbreath'],learnset:[[30,'dragonbreath'],[38,'hyperbeam']],                           catchRate:40,  expYield:250, level:30 },
-  { id:'venomcrawl',    name:'Arbok',   types:['poison'],         sprite:'🦂', baseStats:{hp:72,atk:78,def:65,spAtk:100,spDef:80,spd:85, ability:'immunity'},  moves:['poisonsting','sludge'],   learnset:[[20,'sludge'],[28,'sludgebomb'],[36,'hyperbeam']],                  catchRate:75,  expYield:172, level:20 },
-  { id:'titanfist',     name:'Machamp',    types:['fighting'],       sprite:'🦾', baseStats:{hp:90,atk:120,def:75,spAtk:55,spDef:70,spd:85, ability:'intimidate'},  moves:['karatechop','crosschop'],  learnset:[[20,'crosschop'],[28,'closecombat'],[36,'hyperbeam']],             catchRate:70,  expYield:182, level:20 },
-  { id:'normax',        name:'Stantler',       types:['normal'],         sprite:'🐾', baseStats:{hp:80,atk:80,def:75,spAtk:65,spDef:75,spd:95},   moves:['scratch','bodyslam'],     learnset:[[18,'bodyslam'],[26,'hyperbeam']],                                  catchRate:100, expYield:155, level:18 },
-  { id:'stormwing',     name:'Pidgeot',    types:['flying'],         sprite:'🦅', baseStats:{hp:68,atk:88,def:60,spAtk:80,spDef:75,spd:115},  moves:['wingattack','aeroblast'],  learnset:[[20,'aeroblast'],[30,'hyperbeam']],                               catchRate:75,  expYield:175, level:20 },
-  { id:'armoshell',     name:'Scizor',    types:['bug','steel'],    sprite:'🪲', baseStats:{hp:70,atk:78,def:90,spAtk:75,spDef:70,spd:80},   moves:['bugbite','signalbeam'],   learnset:[[18,'signalbeam'],[26,'bugbuzz'],[34,'ironhead']],                  catchRate:80,  expYield:170, level:18 },
-  { id:'ironcrest',     name:'Magneton',    types:['steel'],          sprite:'🤖', baseStats:{hp:72,atk:95,def:120,spAtk:55,spDef:95,spd:45, ability:'sturdy', heldItem:'shellbell'},  moves:['metalclaw','ironhead'],    learnset:[[24,'ironhead'],[32,'flashcannon'],[40,'hyperbeam']],              catchRate:55,  expYield:210, level:24 },
-  { id:'darkwing',      name:'Crobat',     types:['dark','flying'],  sprite:'🦅', baseStats:{hp:72,atk:100,def:65,spAtk:90,spDef:80,spd:105, ability:'pressure'}, moves:['bite','crunch'],          learnset:[[22,'crunch'],[30,'darkpulse'],[38,'aeroblast']],                   catchRate:65,  expYield:192, level:22 },
-  { id:'seraphelle',    name:'Clefable',   types:['fairy'],          sprite:'👼', baseStats:{hp:78,atk:60,def:75,spAtk:115,spDef:110,spd:82, ability:'naturalcure'}, moves:['fairywind','dazzling'],   learnset:[[22,'dazzling'],[30,'moonblast'],[38,'hyperbeam']],                catchRate:60,  expYield:205, level:22 },
-  { id:'terravore',     name:'Dugtrio',    types:['ground','rock'],  sprite:'🦕', baseStats:{hp:88,atk:105,def:95,spAtk:60,spDef:75,spd:58},  moves:['mudslap','earthquake'],   learnset:[[22,'earthquake'],[30,'fissure'],[38,'bodyslam']],                 catchRate:65,  expYield:200, level:22 },
+  { id:'voltmane',      name:'Raichu',     types:['electric'], baseStats:{hp:55,atk:75,def:45,spAtk:90,spDef:60,spd:115, ability:'static'}, moves:['thundershock','thunderbolt'],learnset:[[20,'thunderbolt'],[30,'thunder'],[38,'hyperbeam']],             catchRate:75,  expYield:178, level:20 },
+  { id:'psyknight',     name:'Alakazam',    types:['psychic'], baseStats:{hp:60,atk:65,def:55,spAtk:115,spDef:100,spd:80, ability:'synchronize'}, moves:['confusion','psybeam'],    learnset:[[22,'psybeam'],[30,'psychic'],[38,'hyperbeam']],                    catchRate:70,  expYield:185, level:22 },
+  { id:'goliath',       name:'Golem',      types:['rock','ground'], baseStats:{hp:85,atk:100,def:115,spAtk:45,spDef:65,spd:35, ability:'sturdy', heldItem:'sitrusberry'}, moves:['rockthrow','rockslide'],  learnset:[[20,'rockslide'],[28,'earthquake'],[36,'bodyslam']],               catchRate:70,  expYield:185, level:20 },
+  { id:'glaceon',       name:'Glaceon',      types:['ice'], baseStats:{hp:70,atk:80,def:75,spAtk:110,spDef:85,spd:65},  moves:['icebeam','blizzard'],     learnset:[[22,'blizzard'],[30,'bodyslam'],[38,'hyperbeam']],                  catchRate:70,  expYield:188, level:22 },
+  { id:'wraithlord',    name:'Gengar',   types:['ghost','dark'], baseStats:{hp:55,atk:75,def:55,spAtk:120,spDef:90,spd:105, ability:'pressure', heldItem:'lifeorb'}, moves:['nightshade','shadowball'], learnset:[[24,'shadowball'],[30,'darkpulse'],[38,'hyperbeam']],              catchRate:60,  expYield:195, level:24 },
+  { id:'drakoserpent',  name:'Dragonite', types:['dragon'], baseStats:{hp:80,atk:110,def:90,spAtk:110,spDef:100,spd:80, ability:'pressure', heldItem:'focussash'},moves:['dragonrage','dragonbreath'],learnset:[[30,'dragonbreath'],[38,'hyperbeam']],                           catchRate:40,  expYield:250, level:30 },
+  { id:'venomcrawl',    name:'Arbok',   types:['poison'], baseStats:{hp:72,atk:78,def:65,spAtk:100,spDef:80,spd:85, ability:'immunity'},  moves:['poisonsting','sludge'],   learnset:[[20,'sludge'],[28,'sludgebomb'],[36,'hyperbeam']],                  catchRate:75,  expYield:172, level:20 },
+  { id:'titanfist',     name:'Machamp',    types:['fighting'], baseStats:{hp:90,atk:120,def:75,spAtk:55,spDef:70,spd:85, ability:'intimidate'},  moves:['karatechop','crosschop'],  learnset:[[20,'crosschop'],[28,'closecombat'],[36,'hyperbeam']],             catchRate:70,  expYield:182, level:20 },
+  { id:'normax',        name:'Stantler',       types:['normal'], baseStats:{hp:80,atk:80,def:75,spAtk:65,spDef:75,spd:95},   moves:['scratch','bodyslam'],     learnset:[[18,'bodyslam'],[26,'hyperbeam']],                                  catchRate:100, expYield:155, level:18 },
+  { id:'stormwing',     name:'Pidgeot',    types:['flying'], baseStats:{hp:68,atk:88,def:60,spAtk:80,spDef:75,spd:115},  moves:['wingattack','aeroblast'],  learnset:[[20,'aeroblast'],[30,'hyperbeam']],                               catchRate:75,  expYield:175, level:20 },
+  { id:'armoshell',     name:'Scizor',    types:['bug','steel'], baseStats:{hp:70,atk:78,def:90,spAtk:75,spDef:70,spd:80},   moves:['bugbite','signalbeam'],   learnset:[[18,'signalbeam'],[26,'bugbuzz'],[34,'ironhead']],                  catchRate:80,  expYield:170, level:18 },
+  { id:'ironcrest',     name:'Magneton',    types:['steel'], baseStats:{hp:72,atk:95,def:120,spAtk:55,spDef:95,spd:45, ability:'sturdy', heldItem:'shellbell'},  moves:['metalclaw','ironhead'],    learnset:[[24,'ironhead'],[32,'flashcannon'],[40,'hyperbeam']],              catchRate:55,  expYield:210, level:24 },
+  { id:'darkwing',      name:'Crobat',     types:['dark','flying'], baseStats:{hp:72,atk:100,def:65,spAtk:90,spDef:80,spd:105, ability:'pressure'}, moves:['bite','crunch'],          learnset:[[22,'crunch'],[30,'darkpulse'],[38,'aeroblast']],                   catchRate:65,  expYield:192, level:22 },
+  { id:'seraphelle',    name:'Clefable',   types:['fairy'], baseStats:{hp:78,atk:60,def:75,spAtk:115,spDef:110,spd:82, ability:'naturalcure'}, moves:['fairywind','dazzling'],   learnset:[[22,'dazzling'],[30,'moonblast'],[38,'hyperbeam']],                catchRate:60,  expYield:205, level:22 },
+  { id:'terravore',     name:'Dugtrio',    types:['ground','rock'], baseStats:{hp:88,atk:105,def:95,spAtk:60,spDef:75,spd:58},  moves:['mudslap','earthquake'],   learnset:[[22,'earthquake'],[30,'fissure'],[38,'bodyslam']],                 catchRate:65,  expYield:200, level:22 },
 ];
 
 // Box background images (24 total, 4col x 6row)
@@ -1802,7 +1802,7 @@ function spriteHTML(monId, emojiSprite, sizePx = 32, back = false, opacity = 1) 
   const url = getPokeSprite(monId, back);
   const opStyle = opacity < 1 ? `opacity:${opacity};` : '';
   if (url) {
-    return `<img src="${url}" alt="${monId}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;image-rendering:pixelated;vertical-align:middle;${opStyle}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${emojiSprite}'}))">`;
+    return `<img src="${url}" alt="${monId}" style="width:${sizePx}px;height:${sizePx}px;object-fit:contain;object-position:center bottom;image-rendering:pixelated;vertical-align:middle;${opStyle}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${emojiSprite}'}))">`;
   }
   return `<span style="font-size:${sizePx * 0.75}px;${opStyle}">${emojiSprite}</span>`;
 }
@@ -1823,7 +1823,7 @@ function makeMonSpriteEl(monId, emojiSprite, back = false, sizePx = 96) {
     const img = document.createElement('img');
     img.src = url;
     img.alt = monId;
-    img.style.cssText = `width:${sizePx}px;height:${sizePx}px;object-fit:contain;image-rendering:pixelated;`;
+    img.style.cssText = `width:${sizePx}px;height:${sizePx}px;object-fit:contain;object-position:center bottom;image-rendering:pixelated;display:block;`;
     img.onerror = () => { img.replaceWith(Object.assign(document.createElement('span'), {textContent: emojiSprite})); };
     return img;
   }
@@ -1924,7 +1924,7 @@ function createMonInstance(dbEntry, level) {
     id: dbEntry.id,
     name: dbEntry.name,
     types: [...dbEntry.types],
-    sprite: dbEntry.sprite,
+    sprite: '',
     level,
     exp: 0,
     expToNext: expToNextLevel(level),
@@ -2014,7 +2014,7 @@ function renderCombatant(side, mon) {
   const spriteWrap = document.getElementById(`${side}-sprite`);
   spriteWrap.innerHTML = '';
   const isBack = (side === 'player');
-  const spr = makeMonSpriteEl(mon.id, mon.sprite, isBack, 96);
+  const spr = makeMonSpriteEl(mon.id, '', isBack, 96);
   spriteWrap.appendChild(spr);
 
   // Types
@@ -2129,7 +2129,7 @@ function renderBattlePartyOverlay(mode) {
       : '';
 
     slot.innerHTML = `
-      <span style="position:absolute;left:${span1?'8px':'5px'};top:50%;transform:translateY(-50%);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7));">${spriteHTML(mon.id, mon.sprite, span1?40:28, false, isFaintedMon?0.45:1)}</span>
+      <span style="position:absolute;left:${span1?'8px':'5px'};top:50%;transform:translateY(-50%);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7));">${spriteHTML(mon.id, '', span1?40:28, false, isFaintedMon?0.45:1)}</span>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px;">
           <span style="font-family:'Press Start 2P',monospace;font-size:${span1?'7px':'6px'};color:${nameColor};text-shadow:0 1px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mon.name}${activeTag}</span>
@@ -2367,7 +2367,7 @@ function selectBattleItem(key) {
     const hpCol = hpPct > 50 ? 'var(--green)' : hpPct > 20 ? '#f5a623' : 'var(--red)';
     const statusTag = mon.statusCondition ? `<span style="color:#f5a623;margin-left:4px;">[${mon.statusCondition.toUpperCase()}]</span>` : '';
     btn.innerHTML = `
-      <span>${mon.sprite} ${mon.name}${statusTag}</span>
+      <span>${mon.name}${statusTag}</span>
       <span style="color:${hpCol};">${mon.currentHp}/${mon.maxHp} HP${reason ? ' · ' + reason : ''}</span>
     `;
     btn.disabled = !useful;
@@ -3330,7 +3330,6 @@ function performEvolution(mon) {
   // Carry over identity
   mon.id        = newDef.id;
   mon.name      = newDef.name;
-  mon.sprite    = newDef.sprite;
   mon.types     = [...newDef.types];
   mon.expYield  = newDef.expYield;
   mon.catchRate = newDef.catchRate;
@@ -3375,7 +3374,7 @@ function drawEvolutionAnimation(mon, oldName, frame, onDone) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.globalAlpha = 0.5 + Math.sin(t * Math.PI * 4) * 0.5;
-  ctx.fillText(mon.sprite, cx, cy);
+  ctx.fillText('★', cx, cy);
   ctx.globalAlpha = 1;
   requestAnimationFrame(() => drawEvolutionAnimation(mon, oldName, frame + 1, onDone));
 }
@@ -3913,7 +3912,7 @@ function getSlotPreview(slot) {
     const d = JSON.parse(localStorage.getItem(saveKey(slot)));
     if (!d) return null;
     const t = new Date(d.timestamp).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-    const party = (d.playerParty||[]).map(m => m.sprite).join(' ');
+    const party = `Party: ${(d.playerParty||[]).length} mon(s)`;
     const badges = (d.badges||[]).length;
     const mapName = (d.player?.mapId) ? ({ town:'Starter Town', forest:'Mystic Forest', cave:'Crystal Cave', shore:'Coral Shore' }[d.player.mapId] || d.player.mapId) : '?';
     const caught = (d.dex?.caught||[]).length;
@@ -5320,7 +5319,7 @@ function owOpenItemUse(key) {
     `;
     btn.disabled = !useful;
     btn.innerHTML = `
-      <span>${mon.sprite} <strong>${mon.name}</strong>${statusTag}</span>
+      <span><strong>${mon.name}</strong>${statusTag}</span>
       <span style="color:${hpCol};">${mon.currentHp}/${mon.maxHp} HP${reason ? ' · ' + reason : ''}</span>
     `;
     btn.onclick = () => owUseItemOnMon(key, idx);
@@ -5876,7 +5875,7 @@ function owShowParty(selectIdx) {
     `;
 
     div.innerHTML = `
-      <span style="position:absolute;left:5px;top:50%;transform:translateY(-50%);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7));">${spriteHTML(mon.id, mon.sprite, 32, false, isFainted?0.4:1)}</span>
+      <span style="position:absolute;left:5px;top:50%;transform:translateY(-50%);filter:drop-shadow(0 2px 4px rgba(0,0,0,0.7));">${spriteHTML(mon.id, '', 32, false, isFainted?0.4:1)}</span>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
           <span style="font-family:'Press Start 2P',monospace;font-size:6px;color:${isFainted?'#886070':'#e8e8f8'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mon.name}${isActive?' <span style=color:#3dd6a3>▶</span>':''}</span>
@@ -6019,7 +6018,7 @@ function owShowMonDetail(monIdx) {
   detail.innerHTML = `
     <!-- Mon header -->
     <div style="display:flex;align-items:center;gap:10px;background:#131828;border:2px solid #2a3050;border-radius:8px;padding:10px;">
-      ${spriteHTML(mon.id, mon.sprite, 64, false, 1)}
+      ${spriteHTML(mon.id, '', 64, false, 1)}
       <div style="flex:1;">
         <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:#e8e8f8;margin-bottom:5px;">${mon.name}</div>
         <div style="display:flex;gap:4px;margin-bottom:5px;">${typeBadges}</div>
@@ -6145,7 +6144,7 @@ function renderPCStorage() {
     `;
     if (mon) {
       cell.title = `${mon.name} Lv.${mon.level}`;
-      cell.innerHTML = spriteHTML(mon.id, mon.sprite, 28, false, 1);
+      cell.innerHTML = spriteHTML(mon.id, '', 28, false, 1);
       // Small level badge
       const badge = document.createElement('div');
       badge.style.cssText = 'position:absolute;bottom:1px;right:2px;font-family:"VT323",monospace;font-size:9px;color:#fff;background:rgba(0,0,0,0.6);border-radius:2px;padding:0 2px;line-height:1.2;';
@@ -6175,7 +6174,7 @@ function renderPCStorage() {
       flex-direction:column; position:relative; transition:all 0.1s;
     `;
     if (mon) {
-      cell.innerHTML = `${spriteHTML(mon.id, mon.sprite, 28)}<span style="font-family:'VT323',monospace;font-size:10px;color:#9dff00;">Lv${mon.level}</span>`;
+      cell.innerHTML = `${spriteHTML(mon.id, '', 28)}<span style="font-family:'VT323',monospace;font-size:10px;color:#9dff00;">Lv${mon.level}</span>`;
       cell.title = `${mon.name} Lv.${mon.level}`;
     } else {
       cell.innerHTML = '<span style="color:rgba(255,255,255,0.15);font-size:18px">—</span>';
@@ -6295,7 +6294,7 @@ function owShowMoveManager(monIdx) {
 
   const overlay = document.getElementById('ow-party-overlay');
   const slots = document.getElementById('ow-party-slots');
-  slots.innerHTML = `<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--accent2);margin-bottom:10px;letter-spacing:1px">${mon.sprite} ${mon.name} — Moves (Lv.${mon.level})</div>`;
+  slots.innerHTML = `<div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--accent2);margin-bottom:10px;letter-spacing:1px">${mon.name} — Moves (Lv.${mon.level})</div>`;
 
   // Current moves
   const curHeader = document.createElement('div');
@@ -6460,7 +6459,7 @@ function renderDexGrid() {
 
     const spriteEl = document.createElement('div');
     spriteEl.style.cssText = 'font-size:30px;line-height:1;filter:' + (isSeen ? 'none' : 'brightness(0)') + ';';
-    if (isSeen) { spriteEl.innerHTML = spriteHTML(mon.id, mon.sprite, 48); } else { spriteEl.textContent = '❓'; }
+    if (isSeen) { spriteEl.innerHTML = spriteHTML(mon.id, '', 48); } else { spriteEl.textContent = '❓'; }
 
     const nameEl = document.createElement('div');
     nameEl.style.cssText = 'font-family:"Press Start 2P",monospace;font-size:6px;color:' + (isSeen ? '#e8e8f0' : '#3a3a5a') + ';line-height:1.4;word-break:break-all;';
@@ -6521,7 +6520,7 @@ function showDexDetail(id) {
   const detail = document.getElementById('dex-detail-inner');
   detail.innerHTML = `
     <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
-      <div style="flex-shrink:0;">${spriteHTML(mon.id, mon.sprite, 80, false, 1)}</div>
+      <div style="flex-shrink:0;">${spriteHTML(mon.id, '', 80, false, 1)}</div>
       <div>
         <div style="font-size:7px;color:#6b6b8a;margin-bottom:3px;">No.${num}</div>
         <div style="font-size:10px;color:#e8e8f0;margin-bottom:6px;">${mon.name.toUpperCase()}</div>
