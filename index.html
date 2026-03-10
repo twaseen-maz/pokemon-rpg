@@ -628,14 +628,12 @@
     image-rendering: pixelated;
     pointer-events: none;
     display: block;
-    margin-top: -18px; /* pull platform up under sprite */
   }
   #player-platform {
     width: 200px; height: auto;
     image-rendering: pixelated;
     pointer-events: none;
     display: block;
-    margin-top: -22px; /* pull platform up under sprite */
   }
   /* Sprite-wraps: normal flow, no positioning needed */
   #enemy-sprite-wrap {
@@ -2005,10 +2003,26 @@ function shuffle(arr) {
 // RENDERING
 // ============================================================
 
+function alignSpritesToPlatforms() {
+  // Measure actual rendered platform heights and set sprite margin so feet
+  // sit exactly on the platform's visual top surface (~20% down from image top).
+  const SURFACE_RATIO = 0.20;
+  ['enemy', 'player'].forEach(side => {
+    const platform = document.getElementById(`${side}-platform`);
+    const spriteWrap = document.getElementById(`${side}-sprite-wrap`);
+    if (!platform || !spriteWrap) return;
+    const rect = platform.getBoundingClientRect();
+    if (rect.height === 0) return;
+    const overlap = rect.height * (1 - SURFACE_RATIO);
+    spriteWrap.style.marginBottom = `-${overlap}px`;
+  });
+}
+
 function renderAll() {
   renderCombatant('enemy', state.enemy);
   renderCombatant('player', getActivePlayer());
   updateInventoryBar();
+  requestAnimationFrame(() => requestAnimationFrame(alignSpritesToPlatforms));
 }
 
 function renderCombatant(side, mon) {
