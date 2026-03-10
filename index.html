@@ -6015,8 +6015,11 @@ function owShowMonDetail(monIdx) {
     </div>`;
   }).join('');
 
+  const evoIntoName = dbEntry?.evolvesInto
+    ? (MON_DB.find(m => m.id === dbEntry.evolvesInto)?.name || dbEntry.evolvesInto)
+    : '';
   const evoInfo = dbEntry?.evolvesAt
-    ? `<div style="font-family:'VT323',monospace;font-size:13px;color:#a070e0;margin-top:2px;">Evolves at Lv.${dbEntry.evolvesAt} → ${dbEntry.evolvesInto}</div>`
+    ? `<div style="font-family:'VT323',monospace;font-size:13px;color:#a070e0;margin-top:2px;">Evolves at Lv.${dbEntry.evolvesAt} → ${evoIntoName}</div>`
     : '';
 
   detail.innerHTML = `
