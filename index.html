@@ -3646,6 +3646,16 @@ function switchMon(idx) {
   if (prev.volatile) prev.volatile = { flinched:false, confused:false, confusedTurns:0 };
   prev.choiceLock = null;
   state.activePlayerIdx = idx;
+
+  // Keep party index 0 in sync with the active battler so the overworld
+  // lead always reflects the last mon sent out in battle.
+  if (idx !== 0) {
+    const temp = state.playerParty[0];
+    state.playerParty[0] = state.playerParty[idx];
+    state.playerParty[idx] = temp;
+    state.activePlayerIdx = 0; // active is now at slot 0
+  }
+
   const next = getActivePlayer();
   // Clear volatile state on switch-in
   if (next.volatile) next.volatile = { flinched:false, confused:false, confusedTurns:0 };
