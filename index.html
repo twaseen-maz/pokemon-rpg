@@ -1876,6 +1876,7 @@ let state = {
   phase: 'battle', // battle | party | catch | textqueue
   playerParty: [],
   activePlayerIdx: 0,
+  designatedLeadIdx: 0, // player's chosen lead; used at battle start
   enemy: null,
   inventory: { pokeball: 5, greatball: 2, ultraball: 1 },
   money: 200,
@@ -3646,16 +3647,6 @@ function switchMon(idx) {
   if (prev.volatile) prev.volatile = { flinched:false, confused:false, confusedTurns:0 };
   prev.choiceLock = null;
   state.activePlayerIdx = idx;
-
-  // Keep party index 0 in sync with the active battler so the overworld
-  // lead always reflects the last mon sent out in battle.
-  if (idx !== 0) {
-    const temp = state.playerParty[0];
-    state.playerParty[0] = state.playerParty[idx];
-    state.playerParty[idx] = temp;
-    state.activePlayerIdx = 0; // active is now at slot 0
-  }
-
   const next = getActivePlayer();
   // Clear volatile state on switch-in
   if (next.volatile) next.volatile = { flinched:false, confused:false, confusedTurns:0 };
@@ -3881,6 +3872,7 @@ function _buildSaveData() {
   return {
     playerParty: state.playerParty,
     activePlayerIdx: state.activePlayerIdx,
+    designatedLeadIdx: state.designatedLeadIdx,
     inventory: state.inventory,
     money: state.money,
     storage: state.storage,
@@ -3960,6 +3952,7 @@ function _applySlotData(d, slot) {
   state.saveSlot = slot;
   state.playerParty = d.playerParty;
   state.activePlayerIdx = d.activePlayerIdx;
+  state.designatedLeadIdx = d.designatedLeadIdx ?? 0;
   state.inventory = d.inventory;
   state.money = d.money ?? 200;
   if (d.storage) state.storage = d.storage;
@@ -4143,6 +4136,7 @@ function confirmStarter() {
   const starter = createMonInstance(monDef, 5);
   state.playerParty = [starter];
   state.activePlayerIdx = 0;
+  state.designatedLeadIdx = 0;
   state.inventory = { pokeball: 5, greatball: 2, ultraball: 1, potion: 3, townmap: 1 };
   state.money = 200;
   state.dex = { seen: [], caught: [] };
@@ -5750,6 +5744,16 @@ document.addEventListener('keyup', e => {
 });
 
 // ── Wild & trainer battles ──
+
+// Returns the party index to send out first: the designated lead if alive,
+// otherwise the first living mon in the party.
+function resolveLeadIdx() {
+  const lead = state.designatedLeadIdx;
+  const mon = state.playerParty[lead];
+  if (mon && mon.currentHp > 0) return lead;
+  return state.playerParty.findIndex(m => m.currentHp > 0) || 0;
+}
+
 function triggerWildBattle() {
   // Pick encounter from table
   const table = ENCOUNTER_TABLES[ow.currentMapId] || ENCOUNTER_TABLES.town;
@@ -5767,6 +5771,7 @@ function triggerWildBattle() {
   state.roundCount = 0;
   state._battleAbilitiesFired = false;
   state.enemyQueue = state.enemyQueue || [];
+  state.activePlayerIdx = resolveLeadIdx();
 
   dexMarkSeen(monDef.id);
 
@@ -5802,6 +5807,7 @@ function triggerTrainerBattle(npc) {
   state.enemyQueue = remainingTeam;
   state.battleOver = false;
   state.roundCount = 0;
+  state.activePlayerIdx = resolveLeadIdx();
   state._returnToOW = true;
   state._trainerNpcId = npc.id;
   state._trainerNpc = npc; // store for defeat dialog
@@ -5828,6 +5834,7 @@ function triggerGymBattle(npc) {
   state.enemyQueue = team;
   state.battleOver = false;
   state.roundCount = 0;
+  state.activePlayerIdx = resolveLeadIdx();
   state._returnToOW = true;
   state._trainerNpcId = npc.id;
   state._gymNpc = npc; // store for badge award after win
@@ -6046,7 +6053,7 @@ function owShowMonDetail(monIdx) {
     ? `<div style="font-family:'VT323',monospace;font-size:13px;color:#a070e0;margin-top:2px;">Evolves at Lv.${dbEntry.evolvesAt} → ${evoIntoName}</div>`
     : '';
 
-  const isLead      = monIdx === 0;
+  const isLead      = monIdx === state.designatedLeadIdx;
   const isFaintedDet = mon.currentHp <= 0;
   const isActiveDet  = monIdx === state.activePlayerIdx;
 
@@ -6140,26 +6147,15 @@ function owShowMonDetail(monIdx) {
 }
 
 function owSetLead(monIdx) {
-  if (monIdx === 0) return;
   const party = state.playerParty;
   if (!party[monIdx] || party[monIdx].currentHp <= 0) return;
 
-  // Swap selected mon with the current lead (index 0)
-  const temp = party[0];
-  party[0] = party[monIdx];
-  party[monIdx] = temp;
+  state.designatedLeadIdx = monIdx;
 
-  // Keep activePlayerIdx consistent
-  if (state.activePlayerIdx === monIdx) {
-    state.activePlayerIdx = 0;
-  } else if (state.activePlayerIdx === 0) {
-    state.activePlayerIdx = monIdx;
-  }
-
-  // Refresh UI — new lead is at index 0
-  _owSelectedMonIdx = 0;
-  owShowParty(0);
-  owShowMonDetail(0);
+  // Refresh UI to reflect the new designated lead
+  _owSelectedMonIdx = monIdx;
+  owShowParty(monIdx);
+  owShowMonDetail(monIdx);
 
   SFX.menuConfirm();
 }
