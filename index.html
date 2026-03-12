@@ -2723,7 +2723,7 @@ function turnTimerStart() {
       turnTimerStop();
       // Auto-use first available move when timer runs out
       const player = getActivePlayer();
-      if (player && !state.battleOver) {
+      if (player && !state.battleOver && !textBusy) {
         const validMoves = player.moves.filter(m => m.currentPP > 0);
         if (validMoves.length > 0) {
           executePlayerMove(validMoves[0]);
@@ -3046,10 +3046,6 @@ function applyEndTurnItemEffects(mon, side, callback) {
 // Called when a mon takes damage that would KO it — check Focus Sash / Sturdy
 function checkSurvive(mon, side) {
   if (mon.currentHp <= 0) {
-    // Focus Sash
-    if (mon.heldItem === 'focussash' && !mon.heldItemUsed && mon.currentHp === mon.maxHp - 0 /* was full HP */) {
-      // Only works from full HP — track via flag set at turn start
-    }
     // Check sturdy/focus sash via flag set before damage
     if (mon._wasFullHp && mon.heldItem === 'focussash' && !mon.heldItemUsed) {
       mon.currentHp = 1;
@@ -3424,12 +3420,10 @@ function gainExp(mon, amount) {
       // Check for new moves
       const newMoves = (dbEntry.learnset || [])
         .filter(([lv2, mId]) => lv2 === mon.level && MOVES_DB[mId] && !mon.moves.find(m => m.id === mId));
+      // Always push levelup exactly once per level, then any new moves after
+      events.push({ type: 'levelup', level: mon.level, name: mon.name });
       for (const [, mId] of newMoves) {
-        events.push({ type: 'levelup', level: mon.level, name: mon.name });
         events.push({ type: 'newmove', mon, moveId: mId });
-      }
-      if (!newMoves.length) {
-        events.push({ type: 'levelup', level: mon.level, name: mon.name });
       }
       // Check for evolution
       if (dbEntry.evolvesAt && mon.level >= dbEntry.evolvesAt && dbEntry.evolvesInto && !mon._pendingEvolve) {
@@ -3487,31 +3481,32 @@ function performEvolution(mon) {
 }
 
 function drawEvolutionAnimation(mon, oldName, frame, onDone) {
-  // Simple flash animation on the battle canvas
-  const canvas = document.getElementById('battleCanvas');
-  if (!canvas) { onDone(); return; }
-  const ctx = canvas.getContext('2d');
-  const totalFrames = 30;
-  if (frame >= totalFrames) { renderAll(); onDone(); return; }
-  // Flash white / original alternating
-  if (frame % 4 < 2) {
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  } else {
+  // Use the existing battle-transition-overlay for a flash effect
+  const overlay = document.getElementById('battle-transition-overlay');
+  const playerSprite = document.getElementById('player-sprite');
+  const TOTAL_FLASHES = 8;
+  const FLASH_MS = 120;
+
+  if (frame >= TOTAL_FLASHES) {
+    // Clean up
+    if (overlay) { overlay.className = ''; overlay.style.display = 'none'; overlay.style.background = ''; }
+    if (playerSprite) playerSprite.style.filter = '';
     renderAll();
+    onDone();
+    return;
   }
-  // Draw big sprite in center
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2 - 20;
-  const t = frame / totalFrames;
-  const size = 40 + Math.sin(t * Math.PI) * 30;
-  ctx.font = `${size}px serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.globalAlpha = 0.5 + Math.sin(t * Math.PI * 4) * 0.5;
-  ctx.fillText('★', cx, cy);
-  ctx.globalAlpha = 1;
-  requestAnimationFrame(() => drawEvolutionAnimation(mon, oldName, frame + 1, onDone));
+
+  // Alternate: white overlay on even frames, clear on odd frames
+  if (overlay) {
+    overlay.style.display = 'block';
+    overlay.style.background = frame % 2 === 0 ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0)';
+  }
+  // Also pulse the player sprite brightness
+  if (playerSprite) {
+    playerSprite.style.filter = frame % 2 === 0 ? 'brightness(10)' : 'brightness(1)';
+  }
+
+  setTimeout(() => drawEvolutionAnimation(mon, oldName, frame + 1, onDone), FLASH_MS);
 }
 
 function queueLevelUpEvents(events, onDone) {
@@ -3738,6 +3733,7 @@ function handlePlayerFainted() {
       // Revive with 30% HP
       state.playerParty.forEach(m => { if (m.currentHp <= 0) m.currentHp = Math.floor(m.maxHp * 0.3); });
       state.activePlayerIdx = 0;
+      state.designatedLeadIdx = 0; // reset lead to slot 0 after blackout
       if (state._returnToOW) {
         returnToOverworld();
       } else {
