@@ -2281,24 +2281,40 @@ function showFightMenu() {
   const player = getActivePlayer();
   const container = document.getElementById('move-buttons');
   container.innerHTML = '';
-  for (const move of player.moves) {
+  const allOutOfPP = player.moves.every(m => m.currentPP <= 0);
+  if (allOutOfPP) {
+    // Show Struggle as the only option
     const btn = document.createElement('button');
     btn.className = 'menu-btn move-btn';
-    const eff = getTypeEffectiveness(move.type, state.enemy.types);
-    let effHint = '';
-    if (eff >= 2) effHint = `<span style="color:var(--accent);font-size:12px">▲</span>`;
-    else if (eff === 0) effHint = `<span style="color:var(--textdim);font-size:12px">✕</span>`;
-    else if (eff < 1) effHint = `<span style="color:var(--textdim);font-size:12px">▼</span>`;
     btn.innerHTML = `
       <div class="move-btn-row">
-        <span>${move.name} ${effHint}</span>
-        <span class="move-pp" style="color:${move.currentPP <= 2 ? 'var(--red)' : 'var(--textdim)'}">PP ${move.currentPP}/${move.pp}</span>
+        <span>Struggle</span>
+        <span class="move-pp" style="color:var(--red)">No PP left!</span>
       </div>
-      <span class="move-type"><span class="type-badge type-${move.type}">${move.type.toUpperCase()}</span> ${move.category}</span>
+      <span class="move-type"><span class="type-badge type-normal">NORMAL</span> physical</span>
     `;
-    btn.disabled = move.currentPP <= 0;
-    btn.onclick = () => { if (!state.battleOver) executePlayerMove(move); };
+    btn.onclick = () => { if (!state.battleOver) executePlayerMove(STRUGGLE_MOVE); };
     container.appendChild(btn);
+  } else {
+    for (const move of player.moves) {
+      const btn = document.createElement('button');
+      btn.className = 'menu-btn move-btn';
+      const eff = getTypeEffectiveness(move.type, state.enemy.types);
+      let effHint = '';
+      if (eff >= 2) effHint = `<span style="color:var(--accent);font-size:12px">▲</span>`;
+      else if (eff === 0) effHint = `<span style="color:var(--textdim);font-size:12px">✕</span>`;
+      else if (eff < 1) effHint = `<span style="color:var(--textdim);font-size:12px">▼</span>`;
+      btn.innerHTML = `
+        <div class="move-btn-row">
+          <span>${move.name} ${effHint}</span>
+          <span class="move-pp" style="color:${move.currentPP <= 2 ? 'var(--red)' : 'var(--textdim)'}">PP ${move.currentPP}/${move.pp}</span>
+        </div>
+        <span class="move-type"><span class="type-badge type-${move.type}">${move.type.toUpperCase()}</span> ${move.category}</span>
+      `;
+      btn.disabled = move.currentPP <= 0;
+      btn.onclick = () => { if (!state.battleOver) executePlayerMove(move); };
+      container.appendChild(btn);
+    }
   }
   document.getElementById('fight-menu').style.display = 'block';
 }
@@ -2712,7 +2728,7 @@ function turnTimerStart() {
         if (validMoves.length > 0) {
           executePlayerMove(validMoves[0]);
         } else {
-          executePlayerMove(player.moves[0]); // struggle
+          executePlayerMove(STRUGGLE_MOVE);
         }
       }
       return;
@@ -2734,6 +2750,9 @@ function turnTimerStop() {
 // ============================================================
 // BATTLE LOGIC
 // ============================================================
+
+// Struggle: used when all PP is depleted. Typeless physical damage + 25% max HP recoil.
+const STRUGGLE_MOVE = { id: 'struggle', name: 'Struggle', type: 'normal', category: 'physical', power: 50, accuracy: null, pp: 1, currentPP: 1, effect: null };
 
 function executePlayerMove(move) {
   if (state.battleOver) return;
@@ -2809,9 +2828,11 @@ function _doPlayerMove(move, player, enemy) {
   }
   applyChoiceLock(player, move);
 
-  move.currentPP--;
-  // Pressure: enemy drains extra PP
-  applyPressurePP(player, enemy, move);
+  // Don't decrement PP for Struggle (it has no real PP)
+  if (move.id !== 'struggle') {
+    move.currentPP--;
+    applyPressurePP(player, enemy, move);
+  }
 
   // Accuracy check — null/undefined means the move never misses (e.g. status moves)
   if (move.accuracy != null && Math.random() * 100 > move.accuracy) {
@@ -2907,6 +2928,20 @@ function _doPlayerMove(move, player, enemy) {
       msgs.push(`${enemy.name} fainted!`);
       msgs.push(() => handleEnemyFainted());
     } else {
+      // Struggle recoil — 25% of user's max HP, applied before other end-turn effects
+      if (move.id === 'struggle') {
+        const recoil = Math.max(1, Math.floor(player.maxHp / 4));
+        applyDamage(player, recoil);
+        renderCombatant('player', player);
+        msgs.push(`${player.name} is hurt by recoil!`);
+        if (isFainted(player)) {
+          spriteAnimate('player', 'faint');
+          msgs.push(`${player.name} fainted!`);
+          msgs.push(() => handlePlayerFainted());
+          runMsgChain(msgs);
+          return;
+        }
+      }
       // Shell Bell / Life Orb attacker effects, then status
       msgs.push(() => applyAttackerItemEffects(player, dmg, 'player', () => applyStatusEffects(player, 'player')));
     }
@@ -3231,7 +3266,30 @@ function _doEnemyMove(enemy, player) {
     if (locked.length > 0) validMoves = locked;
   }
   if (validMoves.length === 0) {
-    queueText(`${enemy.name} struggled!`, () => applyStatusEffects(enemy, 'enemy'));
+    // Enemy is out of PP — use Struggle (typeless damage + recoil)
+    const struggleDmg = Math.max(1, Math.floor(((2 * enemy.level / 5 + 2) * STRUGGLE_MOVE.power * enemy.stats.atk / player.stats.def / 50) + 2));
+    applyDamage(player, struggleDmg);
+    const recoil = Math.max(1, Math.floor(enemy.maxHp / 4));
+    applyDamage(enemy, recoil);
+    renderCombatant('player', player);
+    renderCombatant('enemy', enemy);
+    spriteAnimate('player', 'shake', 'normal', false, 1);
+    const struggleMsgs = [`${enemy.name} used Struggle!`];
+    if (isFainted(player)) {
+      spriteAnimate('player', 'faint');
+      struggleMsgs.push(`${player.name} fainted!`);
+      struggleMsgs.push(() => handlePlayerFainted());
+    } else {
+      struggleMsgs.push(`${enemy.name} is hurt by recoil!`);
+      if (isFainted(enemy)) {
+        spriteAnimate('enemy', 'faint');
+        struggleMsgs.push(`${enemy.name} fainted!`);
+        struggleMsgs.push(() => handleEnemyFainted());
+      } else {
+        struggleMsgs.push(() => showMainMenu());
+      }
+    }
+    runMsgChain(struggleMsgs);
     return;
   }
   const move = validMoves[Math.floor(Math.random() * validMoves.length)];
