@@ -2813,9 +2813,40 @@ function _doPlayerMove(move, player, enemy) {
   // Pressure: enemy drains extra PP
   applyPressurePP(player, enemy, move);
 
-  // Accuracy check
-  if (Math.random() * 100 > move.accuracy) {
+  // Accuracy check — null/undefined means the move never misses (e.g. status moves)
+  if (move.accuracy != null && Math.random() * 100 > move.accuracy) {
     queueText(`${player.name} used ${move.name}... but it missed!`, () => enemyTurn());
+    return;
+  }
+
+  // Status moves: apply effect only, no damage calculation
+  if (move.category === 'status') {
+    const msgs = [`${player.name} used ${move.name}!`];
+    if (move.effect) {
+      const eff = move.effect;
+      if (eff.status === 'cnf') {
+        if (!enemy.volatile) enemy.volatile = { flinched:false, confused:false, confusedTurns:0 };
+        if (!enemy.volatile.confused) {
+          enemy.volatile.confused = true;
+          enemy.volatile.confusedTurns = 2 + Math.floor(Math.random() * 4);
+          msgs.push(`${enemy.name} became confused!`);
+          renderCombatant('enemy', enemy);
+        }
+      } else if (eff.status && !enemy.statusCondition) {
+        if (!checkImmunityAbility(enemy, eff.status)) {
+          enemy.statusCondition = eff.status;
+          if (eff.status === 'slp') enemy.statusTurns = 2 + Math.floor(Math.random() * 4);
+          msgs.push(`${enemy.name} became ${statusName(eff.status)}!`);
+          renderCombatant('enemy', enemy);
+          const syncMsg = checkSynchronize(enemy, player, 'enemy', 'player', eff.status);
+          if (syncMsg) msgs.push(syncMsg);
+        } else {
+          msgs.push(`It had no effect!`);
+        }
+      }
+    }
+    msgs.push(() => applyStatusEffects(player, 'player'));
+    runMsgChain(msgs);
     return;
   }
 
@@ -3208,8 +3239,40 @@ function _doEnemyMove(enemy, player) {
   move.currentPP--;
   applyPressurePP(enemy, player, move);
 
-  if (Math.random() * 100 > move.accuracy) {
+  // Accuracy check — null/undefined means the move never misses
+  if (move.accuracy != null && Math.random() * 100 > move.accuracy) {
     queueText(`${enemy.name} used ${move.name}... but it missed!`, () => applyStatusEffects(enemy, 'enemy'));
+    return;
+  }
+
+  // Status moves: apply effect only, no damage calculation
+  if (move.category === 'status') {
+    const msgs = [`${enemy.name} used ${move.name}!`];
+    if (move.effect) {
+      const eff = move.effect;
+      if (eff.status === 'cnf') {
+        if (!player.volatile) player.volatile = { flinched:false, confused:false, confusedTurns:0 };
+        if (!player.volatile.confused) {
+          player.volatile.confused = true;
+          player.volatile.confusedTurns = 2 + Math.floor(Math.random() * 4);
+          msgs.push(`${player.name} became confused!`);
+          renderCombatant('player', player);
+        }
+      } else if (eff.status && !player.statusCondition) {
+        if (!checkImmunityAbility(player, eff.status)) {
+          player.statusCondition = eff.status;
+          if (eff.status === 'slp') player.statusTurns = 2 + Math.floor(Math.random() * 4);
+          msgs.push(`${player.name} became ${statusName(eff.status)}!`);
+          renderCombatant('player', player);
+          const syncMsg = checkSynchronize(player, enemy, 'player', 'enemy', eff.status);
+          if (syncMsg) msgs.push(syncMsg);
+        } else {
+          msgs.push(`It had no effect!`);
+        }
+      }
+    }
+    msgs.push(() => applyStatusEffects(enemy, 'enemy'));
+    runMsgChain(msgs);
     return;
   }
 
@@ -3233,11 +3296,6 @@ function _doEnemyMove(enemy, player) {
     if (surviveResult.survived) msgs.push(surviveResult.msg);
 
     if (effMsg) msgs.push(effMsg);
-
-    // Static ability check on player when hit physically
-    if (!checkStaticAbility(player, enemy, move, 'enemy', () => {})) {
-      // (handled inline below in msgs chain)
-    }
 
     if (move.effect && typeEff > 0) {
       const eff = move.effect;
@@ -3610,9 +3668,10 @@ function handleEnemyFainted() {
 }
 
 function handlePlayerFainted() {
+  const faintedIdx = state.activePlayerIdx; // capture before clearing
   state.activePlayerIdx = -1;
-  // Find next alive mon
-  const nextIdx = state.playerParty.findIndex((m, i) => i !== state.activePlayerIdx && m.currentHp > 0);
+  // Find next alive mon — exclude the mon that just fainted
+  const nextIdx = state.playerParty.findIndex((m, i) => i !== faintedIdx && m.currentHp > 0);
   if (nextIdx === -1) {
     // All fainted
     state.battleOver = true;
@@ -5751,7 +5810,9 @@ function resolveLeadIdx() {
   const lead = state.designatedLeadIdx;
   const mon = state.playerParty[lead];
   if (mon && mon.currentHp > 0) return lead;
-  return state.playerParty.findIndex(m => m.currentHp > 0) || 0;
+  // Designated lead is fainted — fall back to first alive mon
+  const fallback = state.playerParty.findIndex(m => m.currentHp > 0);
+  return fallback !== -1 ? fallback : 0;
 }
 
 function triggerWildBattle() {
@@ -6271,6 +6332,24 @@ function renderPCStorage() {
   document.getElementById('pc-info').textContent = 'Tap a box slot to select. Tap party member to swap/deposit.';
 }
 
+// Called after state.playerParty.splice(removedIdx, 1) to keep index fields valid.
+function _fixPartyIndicesAfterSplice(removedIdx) {
+  // activePlayerIdx
+  if (state.activePlayerIdx === removedIdx) {
+    state.activePlayerIdx = Math.max(0, Math.min(state.activePlayerIdx, state.playerParty.length - 1));
+  } else if (state.activePlayerIdx > removedIdx) {
+    state.activePlayerIdx--;
+  }
+  // designatedLeadIdx
+  if (state.designatedLeadIdx === removedIdx) {
+    // Removed mon was the lead — reset to first alive mon
+    const firstAlive = state.playerParty.findIndex(m => m.currentHp > 0);
+    state.designatedLeadIdx = firstAlive !== -1 ? firstAlive : 0;
+  } else if (state.designatedLeadIdx > removedIdx) {
+    state.designatedLeadIdx--;
+  }
+}
+
 function pcTapBoxSlot(slotIdx) {
   const box = state.storage.boxes[state.storage.currentBox];
   const boxMon = box.mons[slotIdx] || null;
@@ -6293,11 +6372,9 @@ function pcTapBoxSlot(slotIdx) {
     } else {
       // Deposit
       box.mons[slotIdx] = partyMon;
-      state.playerParty.splice(_pcSelectedPartyIdx, 1);
-      // Ensure activePlayerIdx is still valid
-      if (state.activePlayerIdx >= state.playerParty.length) {
-        state.activePlayerIdx = Math.max(0, state.playerParty.length - 1);
-      }
+      const depositedIdx = _pcSelectedPartyIdx;
+      state.playerParty.splice(depositedIdx, 1);
+      _fixPartyIndicesAfterSplice(depositedIdx);
     }
     _pcSelectedPartyIdx = null;
     _pcSelectedBoxIdx   = null;
@@ -6339,7 +6416,7 @@ function pcTapPartySlot(partyIdx) {
       }
       box.mons[_pcSelectedBoxIdx] = partyMon;
       state.playerParty.splice(partyIdx, 1);
-      if (state.activePlayerIdx >= state.playerParty.length) state.activePlayerIdx = Math.max(0, state.playerParty.length - 1);
+      _fixPartyIndicesAfterSplice(partyIdx);
     } else if (partyMon) {
       // Swap
       state.playerParty[partyIdx] = boxMon;
